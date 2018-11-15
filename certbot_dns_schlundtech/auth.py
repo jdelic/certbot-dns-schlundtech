@@ -34,6 +34,7 @@ class Authenticator(dns_common.DNSAuthenticator):
         add('user', help="Schlundtech user")
         add('password', help="Schlundtech password")
         add('context', help="Schlundtech context")
+        add('token', help="Schlundtech OTP token")
 
     def _setup_credentials(self):
         pass
@@ -53,6 +54,7 @@ class Authenticator(dns_common.DNSAuthenticator):
             user=self.conf('user'),
             password=self.conf('password'),
             context=self.conf('context'),
+            token=self.conf('token'),
             ttl=self.ttl
         )
 
@@ -61,11 +63,12 @@ class _SchlundtechGatewayClient:
     """
     Encapsulates all communication with the SchlundTech XML Gateway.
     """
-    def __init__(self, user, password, context, ttl):
+    def __init__(self, user, password, context, token, ttl):
         self.user = user
         self.password = password
         self.context = context
         self.ttl = ttl
+        self.token = token
         self._xml = _XML()
 
     def _auth(self):
@@ -73,6 +76,7 @@ class _SchlundtechGatewayClient:
             'user': self.user,
             'password': self.password,
             'context': self.context,
+            'token': self.token,
         }
 
     def _call(self, task):
