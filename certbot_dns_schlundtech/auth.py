@@ -31,22 +31,16 @@ class Authenticator(dns_common.DNSAuthenticator):
     @classmethod
     def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
         super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=30)
-        add('credentials', help='SchlundTech XML Gateway credentials file.')
+        add('user', help="Schlundtech user")
+        add('password', help="Schlundtech password")
+        add('context', help="Schlundtech context")
+
+    def _setup_credentials(self):
+        pass
 
     def more_info(self):  # pylint: disable=missing-docstring,no-self-use
         return 'This plugin configures a DNS TXT record to respond to a dns-01 challenge using ' + \
                'the SchlundTech XML Gateway API.'
-
-    def _setup_credentials(self):
-        self.credentials = self._configure_credentials(
-            'credentials',
-            'SchlundTech XML Gateway credentials file',
-            {
-                'user': 'Username for the SchlundTech XML Gateway.',
-                'password': 'Password for the SchlundTech XML Gateway.',
-                'context': 'Context to use.'
-            }
-        )
 
     def _perform(self, domain, validation_name, validation):
         self._get_gateway_client().add_txt_record(domain, validation_name, validation)
@@ -56,9 +50,9 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     def _get_gateway_client(self):
         return _SchlundtechGatewayClient(
-            user=self.credentials.conf('user'),
-            password=self.credentials.conf('password'),
-            context=self.credentials.conf('context'),
+            user=self.conf('user'),
+            password=self.conf('password'),
+            context=self.conf('context'),
             ttl=self.ttl
         )
 
@@ -78,7 +72,7 @@ class _SchlundtechGatewayClient:
         return {
             'user': self.user,
             'password': self.password,
-            'context': self.context
+            'context': self.context,
         }
 
     def _call(self, task):
@@ -117,7 +111,7 @@ class _SchlundtechGatewayClient:
             'code': '0205',
             'zone': {
                 'name': self._zone_name(domain, validation_name)
-            }
+            },
         })
         if result and result['status']['type'] == 'success':
             return result['data']['zone']
