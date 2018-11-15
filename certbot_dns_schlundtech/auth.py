@@ -236,7 +236,7 @@ class _XML:
         t = type(value)
         if value is None:
             pass
-        elif t in [str, unicode, int, float]:
+        elif t in [str, bytes, int, float]:
             Et.SubElement(e, tag).text = str(value)
         elif t == list:
             for item in value:
